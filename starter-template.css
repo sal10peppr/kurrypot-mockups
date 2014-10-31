@@ -1,0 +1,11 @@
+body {
+  padding-top: 50px;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+.bordered{
+    border-color: '#DDD';
+    border:1px;
+}

@@ -9,3 +9,15 @@ body {
     border-color: '#DDD';
     border:1px;
 }
+
+li {
+    padding-top:4px;
+}
+
+.inputor{
+    overflow-y:scroll;
+}
+
+.inline {
+    display:inline;
+}

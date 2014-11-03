@@ -204,9 +204,7 @@
                 // console.log(el.find('#tagName').text() + "->" +el.find('#tagType').text());  
                 tagData[el.find('#tagName').text()] = el.find('#tagType').text();  
             });
-            console.log(' saved tagData ->' +id+"-tagData");
             console.log(tagData);
-            localStorage.setItem(id+"-tagData",JSON.stringify(tagData));
             console.log(v);
         });
     }
@@ -294,7 +292,6 @@
     setInterval(function(){
         $('.inputor').each(function(index, _el){
             var el = $(_el);
-            var id = el.attr('id');
             var txt = el.is('textarea')?el.val():el.text();
             var matches = txt.match(/@\S+/g);
             el.id = el.attr('id');
@@ -309,24 +306,19 @@
 //                console.log(el);
             });
             
-            var tagData = localStorage.getItem(id+"-tagData");
-            if(tagData){
-              tagData = JSON.parse(tagData);
-            }
-             // tagData = {ChickenCrispy: "Starter", ManchowSoup: "Something nice...", VegCombo: "Something nice...", FriedRice: "Something nice...", pepsi: "Something nice..."};
-             console.log('tagData <--' + typeof tagData);
-             console.log(tagData);
+            // tagData = {ChickenCrispy: "Starter", ManchowSoup: "Something nice...", VegCombo: "Something nice...", FriedRice: "Something nice...", pepsi: "Something nice..."};
+
             var tagTemplate = $("#tagTemplate").html();
             for(match in matches){
-                var clean_id = matches[match].replace(/[^a-zA-Z0-9]/g,'');
+                var clean_id= matches[match].replace(/[^a-zA-Z0-9]/g,'');
                 var children = tagsEl.children('#'+clean_id);
                 if(!children || children.length < 1){
-                    var template = $(tagTemplate.format(clean_id,(tagData[clean_id] || 'Something nice...')));
+                    var template = $(tagTemplate.format(clean_id,'Something Nice...'));
                     console.log("template --> ");
                     console.log(template);
                     template.attr('do-not-delete', 'true');
 //                    console.log("added dnd for -> " + clean_id);
-                    tagsEl.append(template);
+
                 }else{
                     children.each(function(id, _el){
                         var el = $(_el);

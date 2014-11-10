@@ -15,6 +15,7 @@
     <!-- Custom styles for this template -->
     <link href="starter-template.css" rel="stylesheet">
     <link href="jquery.atwho.css" rel="stylesheet">
+    <link href="slider.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -60,7 +61,7 @@
               </div>
           </div>
             
-            <h4> The Food </h4>
+            <!-- <h4> The Food </h4>
             <div class="form-group">
             <label for="theFood">Starters</label>
               <div      id="theFood" 
@@ -125,9 +126,12 @@
                         placeholder="140 chars">
               </textarea>
             </div>
-          <button type="submit" class="btn btn-default">Submit</button>
-        </form>
+          <button type="submit" class="btn btn-default">Submit</button>-->        
+          </form>
     </div>
+    </div>
+
+    
 
    <script>
        String.prototype.format = function() {
@@ -144,7 +148,7 @@
    <div id="tagTemplate">
         <li id="{0}" class="tagContainer">
             <button id="tagName" type="button" class="btn btn-primary">{0}</button>
-            <div class="dropdown inline">
+            <div class="dropdown inline" style="display:none">
               <button class="btn btn-default dropdown-toggle" type="button" id="tagType" data-toggle="dropdown">{1}<span class="caret"></span></button>
               <ul class="dropdown-menu" role="menu" aria-labelledby="tagType">
                 <li><a href="#">Starter</a></li>
@@ -154,18 +158,27 @@
                 <li><a href="#">Main Course</a></li>
               </ul>
             </div>
+
+            <div class='inline'>
+              <input type="text" 
+              id="slider-{0}"
+              class="span2 myslider2" 
+              value="" 
+              data-slider-min="-5" 
+              data-slider-max="5" 
+              data-slider-step="1" 
+              data-slider-value="{2}" 
+              data-slider-orientation="horizontal" 
+              data-slider-selection="after"
+              data-slider-tooltip="show">
+              <span id="slider-{0}-val"></span> / 5
+            </div>
         </li>
-       
-        
-       
-       
-       
     </div>  
     </div>
-        
-        
-        
-    </div>
+      
+   
+
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -174,6 +187,7 @@
     <script src="../../dist/js/bootstrap.min.js"></script>
     <script src="../../assets/js/jquery.atwho.js"></script>
     <script src="../../assets/js/jquery.caret.js"></script>
+    <script src="../../assets/js/bootstrap-slider.js"></script>
     <script>
         $(function(){
             // set dropdown text = clicked list item
@@ -181,6 +195,10 @@
               $(this).parents(".dropdown").find('.btn').text($(this).text());
               $(this).parents(".dropdown").find('.btn').val($(this).text());
             });
+
+            // $(".myslider").slider().on('slide', function(){
+            //   console.log(this);
+            // });
         
         });
     </script>
@@ -199,15 +217,31 @@
 
             var tagData = {};
             var v = el_tags.children('.tagContainer').each(
-              function(id, _tagEl){
+              function(index, _tagEl){
                 var el = $(_tagEl);
-                // console.log(el.find('#tagName').text() + "->" +el.find('#tagType').text());  
-                tagData[el.find('#tagName').text()] = el.find('#tagType').text();  
+                var id = _tagEl.id;
+                
+                var valuesToSave ={};
+                valuesToSave.type = el.find('#tagType').text();
+                
+                var slider = $(el.find('#slider-'+id));
+                
+                console.log(slider);
+
+                if(slider){
+                  // console.log(id + "----------> " + slider.val());
+                  valuesToSave.rating = slider.attr('data-slider-value');
+                  console.log(id + "----------> " + slider.attr('data-slider-value'));
+                }
+                
+                // tagData[el.find('#tagName').text()] = valuesToSave;
+                tagData[id] = valuesToSave;
+                console.log(id + "=" + valuesToSave.rating);
             });
-            console.log(' saved tagData ->' +id+"-tagData");
-            console.log(tagData);
+            // console.log(' saved tagData ->' +id+"-tagData");
+            // console.log(tagData);
             localStorage.setItem(id+"-tagData",JSON.stringify(tagData));
-            console.log(v);
+            // console.log(v);
         });
     }
         
@@ -272,12 +306,12 @@
     }
     $inputor = $('.inputor').atwho(at_config).atwho(emoji_config);
     $inputor.on("inserted.atwho", function(event,$li) {
-        console.log("inserted ");
-        console.log(event);
-        console.log($li);
-        console.log(this.id);
+        // console.log("inserted ");
+        // console.log(event);
+        // console.log($li);
+        // console.log(this.id);
         // console.log(this.text().match(/@\S+/g));
-        console.log($(this).text().match(/@\S+/g));
+        // console.log($(this).text().match(/@\S+/g));
 //        $("#"+this.id+'-tags').append('<li><button type="button" class="btn btn-primary">'+$li.attr('data-value')+'</button></li>')
         $("#"+this.id+'-tags').append(tag_template($li.attr('data-value')));
       });
@@ -296,7 +330,7 @@
             var el = $(_el);
             var id = el.attr('id');
             var txt = el.is('textarea')?el.val():el.text();
-            var matches = txt.match(/@\S+/g);
+            var matches = txt.match(/#\S+/g);
             el.id = el.attr('id');
             tagsEl = $("#"+el.id+"-tags");
             // tagsEl.empty();
@@ -314,19 +348,57 @@
               tagData = JSON.parse(tagData);
             }
              // tagData = {ChickenCrispy: "Starter", ManchowSoup: "Something nice...", VegCombo: "Something nice...", FriedRice: "Something nice...", pepsi: "Something nice..."};
-             console.log('tagData <--' + typeof tagData);
-             console.log(tagData);
+             // console.log('tagData <--' + typeof tagData);
+             // console.log(tagData);
             var tagTemplate = $("#tagTemplate").html();
             for(match in matches){
                 var clean_id = matches[match].replace(/[^a-zA-Z0-9]/g,'');
+
                 var children = tagsEl.children('#'+clean_id);
-                if(!children || children.length < 1){
-                    var template = $(tagTemplate.format(clean_id,(tagData[clean_id] || 'Something nice...')));
-                    console.log("template --> ");
-                    console.log(template);
+                var create_flag = (!children || children.length < 1);
+
+                if(create_flag){
+                    console.log("create_flag");
+                    console.log("{0} -> " + clean_id);
+                    console.log("{1} -> " + ((tagData[clean_id] && tagData[clean_id].type) || 'Something nice...'));
+                    console.log("{2} -> " + ((tagData[clean_id] && tagData[clean_id].rating) || 0));
+                    var template = $(tagTemplate.format(
+                      clean_id, /* {0} */
+                      ((tagData[clean_id] && tagData[clean_id].type) || 'Something nice...'), /* {1} */
+                      ((tagData[clean_id] && tagData[clean_id].rating) || 0) /* {2} */
+                      ));
+                    // console.log("template --> ");
+                    // console.log(template);
                     template.attr('do-not-delete', 'true');
 //                    console.log("added dnd for -> " + clean_id);
                     tagsEl.append(template);
+
+                     template.find("#slider-"+clean_id).slider().on('slide', function(ev){
+                          // console.log(this.id);
+                          // console.log(ev);
+                          console.log($("#"+this.id+"-val"));
+                          console.log('on slide value --------> ' + ev.value);
+                          var text = "";
+                          switch(ev.value){
+                            case 0: text = "?";
+                            break;
+                            case 1: text = "I was too hungry";
+                            break;
+                            case 2: text = "Passable";
+                            break;
+                            case 3: text = "Ok ok";
+                            break;
+                            case 4: text = "Delicious";
+                            break;
+                            case 5: text = "Awesssssooommeee!";
+                            break;
+                            default:
+                            text = ev.value;
+                          }
+                          $("#"+this.id+"-val").text(text);
+                          $("#"+this.id+"-val").attr('data-slider-value', ev.value);
+                     });
+            
                 }else{
                     children.each(function(id, _el){
                         var el = $(_el);
